@@ -1,0 +1,29 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+
+void *inv(void *args)
+{
+   int i, k = 0;
+   char *s = args;
+   char *copy = (char *) malloc (strlen(s));
+   for(i = strlen(s) - 1; i >= 0; i--)
+	copy[k++] = s[i];
+   return copy;
+}
+
+int main(int argc,char *argv[])
+{
+   char *s = argv[1];
+//printf("%s",s);
+   pthread_t tid;
+   pthread_create (&tid, NULL, inv, s);
+   char *t;
+   pthread_join (tid, &t);
+   printf ("%s \n", t);
+   return 0;
+}

@@ -1,0 +1,35 @@
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <string.h>
+#include <errno.h>
+#include <stdio.h>
+
+int main(int argc, char * argv[])
+{
+	/*se deschide shared memory cu numele sharedmem care a fost creat in prealabil de alt proces.*/
+	int fd = shm_open("sharedmem", O_RDWR, 0666);
+	if (fd < 0)
+	{
+		perror(NULL);
+		return -1;
+	}
+
+	//se obtine un pointer la shared memory, mapandu-se in spatiul de adrese virtuale a procesului curent, a memoriei shared de mai sus
+	//astfel se obtine un pointer asemanator cu cel intors de maloc, diferenta fiind ca acest pointer are in spate un shared memory si nu este limitat
+	//doar la procesul curent, atata vreme cat nu se apeleaza explicit shm_unlink pe memoria sharedmem, ea va exista pana la rebootarea sistemului
+	char * mem = mmap(0, 4096, PROT_READ, MAP_SHARED, fd, 0);
+	if (mem == MAP_FAILED)
+	{
+		perror(NULL);
+		return -2;	
+	}
+	//pointerul obtinut l-am convertit la char* si il folosim pentru a copia un string in pointerul obtinut
+	printf("%s", mem);
+	//demapam memoria
+	munmap(mem, 4096);
+	shm_unlink("sharedmem");
+	return 0;
+}

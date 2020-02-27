@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main()
+{
+	printf("I am %d \n", (int) getpid());
+	pid_t pid = fork();
+	if(pid < 0)
+        perror("Fork failed");
+    if(pid == 0)
+    {
+        printf("I'm the child with pid %d \n", (int) pid);
+        sleep(5);
+        printf("Child exiting...");
+        exit(0);
+    }
+    if(pid > 0)
+        printf("I'm the parent %d \n",(int) pid);
+        wait(NULL);
+        printf("Parent finished");
+	return 0;
+}

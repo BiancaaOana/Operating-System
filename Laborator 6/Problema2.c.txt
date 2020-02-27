@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+
+int a[5][6];
+int b[6][4];
+
+/*x linie y coloana*/
+struct pereche
+{
+   int x, y;
+};
+
+/* functie dupa prototipul start_routine 
+primeste o linie si o colana ca pereche si returneaza elem. de pe (i,j) 
+dupa inmultire */
+void * prod(void *args)
+{
+	struct pereche *p = args;
+	int *c = (int *)malloc(sizeof(int));
+	int k;
+	for(k = 1; k <= 5; k++)
+		(*c) += a[p->x][k] * b[k][p->y];
+ 	return c;
+}
+
+int main()
+{
+	pthread_t tid[20];
+	int c[5][4];
+	int i, j, k = 1; 
+
+	/*initializari */
+	for (i = 1; i <= 4; i++)
+		for (j = 1; j <= 5; j++)
+			a[i][j] = i;
+
+	for (i = 1; i <= 4; i++)
+		for(j = 1; j <= 3; j++)
+			b[i][j]=j;
+
+	for (i = 1; i <= 4; i++)
+		for (j = 1; j <= 3; j++)
+		{
+			struct pereche *per = (struct pereche*) malloc(sizeof(struct pereche));
+			per->x = i; 
+			per->y = j;
+			/*creez procesul pentru elementul de pe pozitia i j		
+			initializeaza &tid[k] cu functia prod si argumentele date de 			per		
+			*/		
+			pthread_create (&tid[k], NULL, prod, per);
+			k++;
+		}
+
+	k = 1;
+	int *result;
+	for (i = 1; i <= 4; i++)	
+		for (j = 1; j <= 3; j++)
+		{
+			/* asteapta executia lui tid[k] si pune rez. lui prod in 			result*/
+			pthread_join (tid[k], &result);
+			c[i][j] = *result;
+			k++;
+		}
+	for (i = 1; i <= 4; i++)
+	{
+		for (j = 1; j <= 3; j++)
+			printf ("%d ", c[i][j]);
+		printf ("\n");
+	}
+
+	return 0;
+}

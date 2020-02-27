@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <wait.h>
+
+int main()
+{
+	int n = 0;
+	int pid, status;
+	printf("Adauga numar \n");
+	scanf("%d", &n);
+	pid = fork();
+	printf("Fork returned %d \n", (int) pid);
+	if(pid < 0)
+		perror("Fork failed");
+    	if(pid == 0)
+    	{
+		printf("I'm the child with pid %d \n", (int) getpid());
+		while(n != 1)
+		{
+			if(n % 2 == 1)
+				n = n * 3 + 1;
+	    		else n = n / 2;
+			printf("%d  ", n);
+	 
+		}
+	       exit(0);
+    	}
+	if(pid > 0) 
+	{
+	  	printf("My PID = %d, Child PID = %d", getppid(), getpid());
+	        wait(NULL);
+		printf("\nChild %d finished \n", getpid());
+	}
+return 0;
+}

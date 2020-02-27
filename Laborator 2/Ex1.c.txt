@@ -1,0 +1,14 @@
+#include <unistd.h>
+#include<stdlib.h>
+#include<stdio.h>
+#include <sys/types.h>
+       #include <sys/stat.h>
+       #include <fcntl.h>
+
+ 
+int main()
+{
+	write(1, "Hello world! \n", 14);
+	
+    exit(0);
+}
